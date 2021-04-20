@@ -7,3 +7,5 @@ docker push eswaribala/ecommercecgirepo:r1
 kubectl version
 kubectl cluster-info
 
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0/aio/deploy/recommended.yaml
+
