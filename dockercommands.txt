@@ -4,3 +4,6 @@ docker tag rabbitmq:3-management eswaribala/ecommercecgirepo:r1
 
 docker push eswaribala/ecommercecgirepo:r1
 
+kubectl version
+kubectl cluster-info
+
