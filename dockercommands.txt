@@ -18,3 +18,14 @@ http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kube
 
 kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | sls admin-user | ForEach-Object { $_ -Split '\s+' } | Select -First 1)
 
+
+docker-desktop wsl2  Kubernete multi node clusters
+
+Step 1: curl.exe -Lo kind-windows-amd64.exe https://kind.sigs.k8s.io/dl/v0.10.0/kind-windows-amd64
+Step2: copy .\kind-windows-amd64.exe d:\kube\kind.exe
+Step 3: Go to d:\kube
+Step 4: kind create cluster # Default cluster context name is `kind`.
+Step 5: kind create cluster --name kind-2
+Step 6: kind get clusters
+Step7: kubectl get cluster-info
+
