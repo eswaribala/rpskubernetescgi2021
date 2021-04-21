@@ -32,4 +32,11 @@ Step7: kubectl get cluster-info
 # createing cluster using configuration file
 kind create cluster --config "G:\Local disk\Docker\kind-example-config.yaml"
 
+#to deploy config file
+kubectl apply -f flask-config.yaml
+kubectl get pods
+kubectl get svc
+kubectl get deployments
+kubectl port-forward service/servicename 6060:80
+
 
