@@ -1,0 +1,34 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: flask-app-service
+spec:
+  ports:
+    - targetPort: 8787
+      nodePort: 30087
+      port: 80
+  selector:
+    app: flask-cgi-app
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cgi-flask-deployment
+  labels:
+    app: flask
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flask-cgi-app
+  template:
+    metadata:
+      labels:
+        app: flask-cgi-app
+    spec:
+      containers:
+      - name: flask-app-container
+        image: eswaribala/ecommercecgirepo:p2
+        ports:
+        - containerPort: 8787
