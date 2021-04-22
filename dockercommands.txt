@@ -55,3 +55,5 @@ kubectl create configmap literal-config-1 --from-literal=literal-key1=value1 --f
 
 kubectl describe configmap/literal-config-1
 
+>kubectl create configmap from-cgi-configmap --from-file=cgi-config-files
+
