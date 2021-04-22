@@ -32,6 +32,8 @@ Step7: kubectl get cluster-info
 # createing cluster using configuration file
 kind create cluster --config "G:\Local disk\Docker\kind-example-config.yaml"
 
+
+
 #to deploy config file
 kubectl apply -f flask-config.yaml
 kubectl get pods
@@ -42,4 +44,14 @@ kubectl port-forward service/servicename 6060:80
 kubectl expose deployment cgi-flask-deployment --type=LoadBalancer --name=flask-app-service-b2
 
 kubectl run -it --rm --image=mysql --restart=Never mysql-client -- mysql -h mysql -ppassword
+
+kubectl create configmap configmap-example-1 --from-file=./config-map-data.txt
+
+kubectl describe configmap/configmap-example-1
+
+kubectl delete configmap/configmap-example-1
+
+kubectl create configmap literal-config-1 --from-literal=literal-key1=value1 --from-literal=literal-key2=22
+
+kubectl describe configmap/literal-config-1
 
