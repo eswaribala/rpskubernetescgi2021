@@ -39,4 +39,7 @@ kubectl get svc
 kubectl get deployments
 kubectl port-forward service/servicename 6060:80
 
+kubectl expose deployment cgi-flask-deployment --type=LoadBalancer --name=flask-app-service-b2
+
+
 
