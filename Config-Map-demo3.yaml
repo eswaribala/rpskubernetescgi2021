@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: configmap-pod-2
+spec:
+  containers:
+    - name: cm-container-2
+      image: alpine
+      imagePullPolicy: IfNotPresent
+      command: [ "/bin/sh", "-c", "env" ]
+      env:
+        - name: ENV_Literal
+          valueFrom:
+            configMapKeyRef:
+              name: literal-config-mysql
+              key: literal-port
+  restartPolicy: Never
