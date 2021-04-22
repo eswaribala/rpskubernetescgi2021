@@ -41,5 +41,5 @@ kubectl port-forward service/servicename 6060:80
 
 kubectl expose deployment cgi-flask-deployment --type=LoadBalancer --name=flask-app-service-b2
 
-
+kubectl run -it --rm --image=mysql --restart=Never mysql-client -- mysql -h mysql -ppassword
 
