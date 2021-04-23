@@ -1,0 +1,101 @@
+Generate the CA Key and Certificate
+$ openssl req -x509 -sha256 -newkey rsa:4096 -keyout ca.key -out ca.crt -days 356 -nodes -subj "/CN=Fern Cert Authority"
+# Generate the Server Key, and Certificate and Sign with the CA Certificate
+$ openssl req -new -newkey rsa:4096 -keyout server.key -out server.csr -nodes -subj "/CN=meow.com"
+$ openssl x509 -req -sha256 -days 365 -in server.csr -CA ca.crt -CAkey ca.key -set_serial 01 -out server.crt
+# Generate the Client Key, and Certificate and Sign with the CA Certificate
+$ openssl req -new -newkey rsa:4096 -keyout client.key -out client.csr -nodes -subj "/CN=Fern"
+$ openssl x509 -req -sha256 -days 365 -in client.csr -CA ca.crt -CAkey ca.key -set_serial 02 -out client.crt
+
+kubectl create secret generic my-certs --from-file=tls.crt=server.crt --from-file=tls.key=server.key --from-file=ca.crt=ca.crt
+kubectl get secret my-certs
+
+deploy mutual authentication
+
+$ echo "
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: meow
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: meow
+  template:
+    metadata:
+      labels:
+        app: meow
+    spec:
+      containers:
+      - name: meow
+        image: gcr.io/kubernetes-e2e-test-images/echoserver:2.1
+        ports:
+        - containerPort: 8080
+" | kubectl apply -f -
+# wait a min for the deployment to be created
+$ kubectl get deploy
+NAME       DESIRED   CURRENT   UP-TO-DATE   AVAILABLE
+meow       2         2         2            2
+# you should have 2 pods running
+$ kubectl get pods
+NAME                       READY     STATUS
+meow-5557bc7c54-cw2ck     1/1       Running
+meow-5557bc7c54-kfzm5     1/1       Running
+
+
+Expose our pods using Services. More info about exposure here
+$ echo "
+apiVersion: v1
+kind: Service
+metadata:
+  name: meow-svc
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  selector:
+    app: meow
+" | kubectl apply -f -
+# wait a min for the service to be created
+$ kubectl get svc
+NAME           TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)
+meow-svc       ClusterIP   10.107.78.24    <none>        80/TCP
+
+Setup the Ingress Rules, and add meow.com to /etc/hosts
+$ echo "
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/auth-tls-verify-client: \"on\"
+    nginx.ingress.kubernetes.io/auth-tls-secret: \"default/my-certs\"
+  name: meow-ingress
+  namespace: default
+spec:
+  rules:
+  - host: meow.com
+    http:
+      paths:
+      - backend:
+          serviceName: meow-svc
+          servicePort: 80
+        path: /
+  tls:
+  - hosts:
+    - meow.com
+    secretName: my-certs
+" | kubectl apply -f -
+$ kubectl get ing cat-nginx
+$ kubectl get ing
+NAME           HOSTS     ADDRESS     PORTS     AGE
+meow-ingress   meow.com  10.0.2.15   80, 443   1m
+# Add meow.com to /etc/hosts
+$ sudo -- sh -c "echo $(minikube ip)  meow.com >> /etc/hosts"
+
+
+curl https://meow.com/ -k
+
+curl https://meow.com/ --cert client.crt --key client.key -k
